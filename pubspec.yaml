@@ -11,21 +11,20 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.5
-  # إدارة الحالة
   flutter_riverpod: ^2.3.6
-  # الوصول للمكتبة الإعلامية
-  photo_manager: ^2.7.0
-  # الأذونات
+  photo_manager: ^2.8.2
   permission_handler: ^11.0.1
-  # مقارنة الصور (hashing)
   image: ^4.0.17
-  # حركات محسّنة (اختياري للسهولة)
   flutter_animate: ^4.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+
+dependency_overrides:
+  photo_manager:
+    path: local_packages/photo_manager_fix
 
 flutter:
   uses-material-design: true
