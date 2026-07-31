@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MaddApp());
@@ -10,19 +11,23 @@ class MaddApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final baseTextTheme = ThemeData.dark().textTheme;
+
     return MaterialApp(
       title: 'مَــدّ',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0D0D0D),
-        primaryColor: const Color(0xFFD4AF37),
+        scaffoldBackgroundColor: const Color(0xFF0B0B0E),
+        primaryColor: const Color(0xFFE2B858),
         colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFD4AF37),
-          surface: Color(0xFF161616),
-          background: Color(0xFF0D0D0D),
+          primary: Color(0xFFE2B858),
+          secondary: Color(0xFFF5D77F),
+          surface: Color(0xFF16161E),
+          background: Color(0xFF0B0B0E),
         ),
+        textTheme: GoogleFonts.ibmPlexSansArabicTextTheme(baseTextTheme),
       ),
       home: const SplashScreen(),
     );
@@ -40,6 +45,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -47,11 +53,15 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(milliseconds: 1800),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
 
     _controller.forward();
@@ -86,28 +96,31 @@ class _SplashScreenState extends State<SplashScreen>
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'مَــدّ',
-                style: TextStyle(
-                  fontSize: 64,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                  letterSpacing: 3.0,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'مَــدّ',
+                  style: GoogleFonts.ibmPlexSansArabic(
+                    fontSize: 72,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                    letterSpacing: 2.0,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'تنسيق وتمديد النصوص بذكاء',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white54,
-                  letterSpacing: 1.2,
+                const SizedBox(height: 12),
+                Text(
+                  'تنسيق وتمديد النصوص بذكاء',
+                  style: GoogleFonts.ibmPlexSansArabic(
+                    fontSize: 15,
+                    color: Colors.white54,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -124,19 +137,23 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'مَــدّ',
-          style: TextStyle(
+          style: GoogleFonts.ibmPlexSansArabic(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
+            fontSize: 22,
           ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
       ),
-      body: const Center(
+      body: Center(
         child: Text(
-          'الشاشة الرئيسية (في انتظار الخطوة التالية)',
-          style: TextStyle(color: Colors.white38, fontSize: 14),
+          'الشاشة الرئيسية (جاهزة لبناء المحرك)',
+          style: GoogleFonts.ibmPlexSansArabic(
+            color: Colors.white38,
+            fontSize: 14,
+          ),
         ),
       ),
     );
