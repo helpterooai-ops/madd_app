@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MaddApp());
@@ -11,14 +10,13 @@ class MaddApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseTextTheme = ThemeData.dark().textTheme;
-
     return MaterialApp(
       title: 'مَــدّ',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(
         brightness: Brightness.dark,
+        fontFamily: 'IBMPlexSansArabic',
         scaffoldBackgroundColor: const Color(0xFF0B0B0E),
         primaryColor: const Color(0xFFE2B858),
         colorScheme: const ColorScheme.dark(
@@ -27,7 +25,6 @@ class MaddApp extends StatelessWidget {
           surface: Color(0xFF16161E),
           background: Color(0xFF0B0B0E),
         ),
-        textTheme: GoogleFonts.ibmPlexSansArabicTextTheme(baseTextTheme),
       ),
       home: const SplashScreen(),
     );
@@ -103,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen>
               children: [
                 Text(
                   'مَــدّ',
-                  style: GoogleFonts.ibmPlexSansArabic(
+                  style: TextStyle(
                     fontSize: 72,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
@@ -111,9 +108,9 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
+                const Text(
                   'تنسيق وتمديد النصوص بذكاء',
-                  style: GoogleFonts.ibmPlexSansArabic(
+                  style: TextStyle(
                     fontSize: 15,
                     color: Colors.white54,
                     fontWeight: FontWeight.w400,
@@ -137,7 +134,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'مَــدّ',
-          style: GoogleFonts.ibmPlexSansArabic(
+          style: TextStyle(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
             fontSize: 22,
@@ -147,10 +144,10 @@ class HomeScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
       ),
-      body: Center(
+      body: const Center(
         child: Text(
           'الشاشة الرئيسية (جاهزة لبناء المحرك)',
-          style: GoogleFonts.ibmPlexSansArabic(
+          style: TextStyle(
             color: Colors.white38,
             fontSize: 14,
           ),
