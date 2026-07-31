@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../engine/kashida_engine.dart';
-import '../models/word_stretch_item.dart';
-import '../widgets/canvas_text_box.dart';
-import '../widgets/bottom_toolbar.dart';
+import '../models/social_sticker_model.dart';
+import '../widgets/floating_quick_menu.dart';
+import '../widgets/bottom_editor_panel.dart';
+import 'templates_and_stickers_modal.dart';
 import 'text_input_dialog.dart';
 
 class HomeEditorScreen extends StatefulWidget {
@@ -14,32 +15,16 @@ class HomeEditorScreen extends StatefulWidget {
 }
 
 class _HomeEditorScreenState extends State<HomeEditorScreen> {
-  String _rawText = 'مرحباً بكم في تطبيق مَــدّ';
-  bool _isManualMode = false;
-  double _autoStretchLevel = 0.5;
+  String _rawText = 'مرحباً بكم';
+  double _stretchRatio = 0.5;
   double _fontSize = 32.0;
-  Color _textColor = const Color(0xFFE2B858);
+  Color _textColor = Colors.white;
+  String _selectedFont = 'مَدّ ثمانية';
+  bool _showMenu = true;
+  SocialStickerModel? _sticker;
 
-  List<WordStretchItem> _wordItems = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _rebuildWordItems();
-  }
-
-  void _rebuildWordItems() {
-    List<String> words = _rawText.trim().split(RegExp(r'\s+'));
-    _wordItems = words.map((w) => WordStretchItem(originalWord: w)).toList();
-  }
-
-  String get _finalDisplayText {
-    if (_rawText.isEmpty) return '';
-    if (_isManualMode) {
-      return _wordItems.map((item) => item.stretchedWord).join(' ');
-    } else {
-      return KashidaEngine.extendFullText(_rawText, _autoStretchLevel);
-    }
+  String get _finalStretchedText {
+    return KashidaEngine.extendTextAuto(_rawText, _stretchRatio);
   }
 
   void _openTextInput() {
@@ -52,25 +37,28 @@ class _HomeEditorScreenState extends State<HomeEditorScreen> {
         onSave: (newText) {
           setState(() {
             _rawText = newText;
-            _rebuildWordItems();
           });
         },
       ),
     );
   }
 
-  void _copyResult() {
-    if (_finalDisplayText.isEmpty) return;
-    Clipboard.setData(ClipboardData(text: _finalDisplayText));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'تم نسخ النص الممدد بنجاح!',
-          style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF1E1E28),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  void _openTemplatesAndStickers() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => TemplatesAndStickersModal(
+        onSelectTemplate: (templateText) {
+          setState(() {
+            _rawText = templateText;
+          });
+        },
+        onAddSticker: (stickerModel) {
+          setState(() {
+            _sticker = stickerModel;
+          });
+        },
       ),
     );
   }
@@ -80,23 +68,33 @@ class _HomeEditorScreenState extends State<HomeEditorScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0B0B0E),
       appBar: AppBar(
-        title: const Text(
-          'مَــدّ',
-          style: TextStyle(
-            color: Color(0xFFE2B858),
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            letterSpacing: 1.5,
-          ),
-        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: const BoxDecoration(
+            color: Color(0xFFE2B858),
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.ios_share_rounded, color: Colors.black, size: 20),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: _finalStretchedText));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تم نسخ النص الممدد بنجاح!')),
+              );
+            },
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.copy_rounded, color: Color(0xFFE2B858)),
-            onPressed: _copyResult,
-            tooltip: 'نسخ النص',
+            icon: const Icon(Icons.grid_view_rounded, color: Colors.white70),
+            onPressed: _openTemplatesAndStickers,
+            tooltip: 'القوالب والملصقات',
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.white70),
+            onPressed: _openTextInput,
           ),
         ],
       ),
@@ -106,40 +104,95 @@ class _HomeEditorScreenState extends State<HomeEditorScreen> {
             Expanded(
               child: Center(
                 child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: CanvasTextBox(
-                      text: _finalDisplayText,
-                      textStyle: TextStyle(
-                        fontSize: _fontSize,
-                        fontWeight: FontWeight.bold,
-                        color: _textColor,
-                        height: 1.6,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() => _showMenu = !_showMenu),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 22),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF16161E),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: const Color(0xFFE2B858).withOpacity(0.4),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Text(
+                                _finalStretchedText.isEmpty ? 'اضغط هنا للكتابة' : _finalStretchedText,
+                                textAlign: TextAlign.center,
+                                textDirection: TextDirection.rtl,
+                                style: TextStyle(
+                                  fontSize: _fontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: _textColor,
+                                  height: 1.6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      onTap: _openTextInput,
-                      onEdit: _openTextInput,
-                      onDelete: () {
-                        setState(() {
-                          _rawText = '';
-                          _wordItems.clear();
-                        });
-                      },
-                    ),
+                      if (_sticker != null) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: _sticker!.style == StickerStyle.glass
+                                ? Colors.white.withOpacity(0.1)
+                                : _sticker!.brandColor,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(_sticker!.platformIcon, color: Colors.white, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                _sticker!.username,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 24),
+                      if (_showMenu)
+                        FloatingQuickMenu(
+                          onEdit: _openTextInput,
+                          onFont: () {},
+                          onColor: () {},
+                          onSize: () {},
+                          onStretch: () {},
+                          onShadow: () {},
+                          onEffect: () {},
+                          onCenter: () {},
+                          onSaveTemplate: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('تم حفظ النص كقالب بنجاح!')),
+                            );
+                          },
+                        ),
+                    ],
                   ),
                 ),
               ),
             ),
-            BottomToolbar(
-              isManualMode: _isManualMode,
-              autoStretchLevel: _autoStretchLevel,
-              onManualModeChanged: (val) => setState(() => _isManualMode = val),
-              onAutoStretchChanged: (val) => setState(() => _autoStretchLevel = val),
-              wordItems: _wordItems,
-              onWordChanged: () => setState(() {}),
-              selectedColor: _textColor,
-              onColorChanged: (c) => setState(() => _textColor = c),
+            BottomEditorPanel(
+              autoStretchLevel: _stretchRatio,
+              onAutoStretchChanged: (v) => setState(() => _stretchRatio = v),
+              selectedFont: _selectedFont,
+              onFontSelected: (f) => setState(() => _selectedFont = f),
               fontSize: _fontSize,
               onFontSizeChanged: (s) => setState(() => _fontSize = s),
+              selectedColor: _textColor,
+              onColorChanged: (c) => setState(() => _textColor = c),
             ),
           ],
         ),
