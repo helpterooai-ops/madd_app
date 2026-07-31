@@ -259,7 +259,7 @@ class _TemplatesAndStickersModalState extends State<TemplatesAndStickersModal>
       case SocialPlatform.instagram: return Icons.camera_alt_rounded;
       case SocialPlatform.whatsapp: return Icons.phone_android_rounded;
       case SocialPlatform.x: return Icons.close_rounded;
-      case SocialPlatform.snapchat: return Icons.ghost;
+      case SocialPlatform.snapchat: return Icons.chat_bubble_outline_rounded;
       case SocialPlatform.tiktok: return Icons.music_note_rounded;
       case SocialPlatform.youtube: return Icons.play_arrow_rounded;
       case SocialPlatform.facebook: return Icons.facebook_rounded;
